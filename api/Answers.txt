@@ -1,9 +1,8 @@
 Question 1 Answer:
-I vibe coded it
 
 
 Question 2 Answer:
-The diffrenece is memory adressses
+
 
 Question 3 Answer:
 

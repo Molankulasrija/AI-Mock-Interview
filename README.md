@@ -2,7 +2,7 @@
 
 > **An automated, AI-driven technical screening platform that evaluates engineers based strictly on their unique technical footprint.**
 
-![Platform UI Preview](https://via.placeholder.com/1200x600/0a0a0a/ffffff?text=Add+a+screenshot+of+your+Cyber-Dark+UI+here)
+![Platform UI Preview](*\Image.png)
 
 ## 📖 The Vision
 

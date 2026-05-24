@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. The Go Backend
   api:
     build: 
       context: ./api
@@ -13,7 +12,6 @@ services:
     volumes:
       - ./api:/app  # Optional: syncs files for local development
 
-  # 2. The Next.js Frontend
   frontend:
     build: 
       context: ./frontend

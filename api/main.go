@@ -59,7 +59,7 @@ func main() {
 		}
 		var payload AnswerPayload
 		if err := c.BodyParser(&payload); err != nil {
-			return c.Status(400).JSON(fiber.Map{"error": "Invalid payload"})
+			return c.Status(400).JSON(fiber.Map{"error": "Invalid "})
 		}
 
 		file, err := os.Create("Answers.txt")

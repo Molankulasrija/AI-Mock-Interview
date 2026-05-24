@@ -1,61 +1,102 @@
-import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
-import ResumeUpload from '../ResumeUpload'; 
-import { ArrowLeft, FileCheck } from 'lucide-react';
-import Link from 'next/link';
+'use client';
 
-export default async function ResumePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+import { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation'; // 🔥 Import the Next.js router
 
-  if (!user) {
-    redirect('/login');
-  }
+export default function ResumeUpload({ userId }: { userId: string }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // 🔥 State to unlock the button
+  
+  const supabase = createClient();
+  const router = useRouter(); // 🔥 Initialize the router
 
-  // Check Supabase Storage to see if a file exists with this user's ID
-  const { data: files, error } = await supabase.storage
-    .from('resumes')
-    .list('', { search: user.id });
+  const handleUpload = async () => {
+    if (!file) return alert("Please select a file first!");
+    setIsUploading(true);
+    setIsSuccess(false); // Reset success state on new upload
 
-  const hasResume = files && files.length > 0;
-  const existingFile = hasResume ? files : null;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}-${Date.now()}.${fileExt}`;
+
+    const formData = new FormData();
+    formData.append("resume", file);
+
+    try {
+      console.log("Starting parallel upload and AI parsing...");
+
+      const [supabaseResult, goApiResult] = await Promise.all([
+        supabase.storage.from('resumes').upload(fileName, file),
+        fetch("http://localhost:8080/api/analyze-resume", {
+          method: "POST",
+          body: formData, 
+        })
+      ]);
+
+      if (supabaseResult.error) throw supabaseResult.error;
+      
+      const aiData = await goApiResult.json();
+      
+      if (aiData.status === "success") {
+        console.log("Questions generated locally:", aiData.questions);
+        alert("Success! The AI has generated and saved your Questions.txt file.");
+        
+        // 🔥 Unlock the Proceed button instead of reloading the page
+        setIsSuccess(true); 
+      } else {
+        alert("Saved to DB, but AI parsing failed: " + aiData.error);
+      }
+
+    } catch (error) {
+      console.error("System Error:", error);
+      alert("An error occurred during processing.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <Link href="/dashboard" className="text-zinc-500 hover:text-zinc-900 flex items-center gap-2 transition-colors">
-            <ArrowLeft size={20} />
-            Back to Dashboard
-          </Link>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
-          <div className="p-6 border-b border-zinc-100 bg-zinc-50/50">
-            <h1 className="text-2xl font-bold text-zinc-900">Document Parsing</h1>
-            <p className="text-sm text-zinc-500 mt-1">Upload your profile to configure the AI system constraints.</p>
-          </div>
-          <div className="p-6">
-            
-            {/* CONDITIONAL RENDERING */}
-            {hasResume ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center flex flex-col items-center justify-center">
-                <div className="h-16 w-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-                  <FileCheck size={32} />
-                </div>
-                <h2 className="text-xl font-bold text-green-900 mb-2">Your PDF is already with us!</h2>
-                <p className="text-green-700 mb-6">File stored as: {existingFile?.name}</p>
-                <Link href="/dashboard/interview" className="bg-green-600 text-white px-6 py-2 rounded-md font-medium hover:bg-green-700 transition-colors">
-                  Proceed to Interview
-                </Link>
-              </div>
-            ) : (
-              <ResumeUpload userId={user.id} />
-            )}
+    <div className="border-2 border-dashed border-zinc-300 rounded-lg p-10 flex flex-col items-center justify-center text-center">
+      
+      {/* Upload Section */}
+      <input 
+        type="file" 
+        accept=".pdf"
+        onChange={(e) => {
+          setFile(e.target.files?.[0] || null);
+          setIsSuccess(false); // Reset if they pick a new file
+        }}
+        className="mb-4 text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-900 file:text-white hover:file:bg-zinc-800 cursor-pointer"
+      />
+      <button 
+        onClick={handleUpload}
+        disabled={isUploading || !file || isSuccess}
+        className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-8"
+      >
+        {isUploading ? "Processing Parallel Tasks..." : (isSuccess ? "Analysis Complete" : "Analyze Resume & Generate Questions")}
+      </button>
 
-          </div>
-        </div>
+      {/* 🔥 The New Conditional Navigation Button 🔥 */}
+      <div className="w-full pt-8 border-t border-zinc-200">
+        <p className="text-sm font-medium mb-4">
+          {isSuccess 
+            ? "Ready! The AI has configured your personalized session." 
+            : "Upload your resume to unlock the interview room."}
+        </p>
+        <button 
+          onClick={() => router.push('/dashboard/interview')}
+          disabled={!isSuccess}
+          className={`w-full md:w-2/3 py-3 px-6 rounded-lg font-bold text-lg transition-all
+            ${isSuccess 
+              ? "bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5" 
+              : "bg-zinc-100 text-zinc-400 cursor-not-allowed border border-zinc-200"
+            }`}
+        >
+          Proceed to Interview Room
+        </button>
       </div>
+
     </div>
   );
 }

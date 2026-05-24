@@ -1,0 +1,10 @@
+1. In your Pebble platform, you engineered an async event-driven pipeline with RabbitMQ and Redis. Can you describe a scenario where message ordering or exactly-once delivery was critical, and how you designed your Golang microservices and Redis state management to guarantee those properties despite potential network partitions or consumer failures?
+
+2. When containerizing your full stack with Docker, you're implicitly managing process isolation and resource allocation. Can you explain the fundamental differences between `docker run` and `docker exec` in terms of process lifecycle and resource management, and discuss how you'd debug a Golang microservice inside a running container that's experiencing high CPU usage without stopping it?
+
+3. For your C++ Rubik's Cube Solver, given the immense state space of a 3x3 cube, memory efficiency is paramount for graph traversal algorithms like BFS or DFS, especially when storing visited states. Describe the C++ data structures you used to represent cube states and track visited configurations to minimize memory footprint, and how you handled potential memory fragmentation or cache misses with your chosen approach.
+
+4. Your Pebble platform utilized a Golang microservices backend. When dealing with concurrent transaction processing, how would you design a Golang service to handle a sudden surge of requests efficiently, specifically contrasting `select` statements with buffered channels for inter-goroutine communication, and what considerations would you make regarding OS thread scheduling vs. Goroutine scheduling?
+
+5. Consider a C program running on a Linux system. If you declare a global integer array `int my_array[100];` and a local integer array `int another_array[100];` within a function, describe where in memory (e.g., stack, heap, data segment) each of these arrays would typically be allocated. Furthermore, explain a common scenario involving pointer arithmetic on `my_array` that could lead to a segmentation fault or undefined behavior, and how you would diagnose such an issue using Linux tools.
+

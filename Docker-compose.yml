@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # 1. The Go Backend
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./api/.env  # Tells Docker to use your backend env variables
+    volumes:
+      - ./api:/app  # Optional: syncs files for local development
+
+  # 2. The Next.js Frontend
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.local # Tells Docker to use your frontend env variables
+    depends_on:
+      - api # Ensures the Go API starts before the frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules

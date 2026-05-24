@@ -2,7 +2,7 @@
 
 > **An automated, AI-driven technical screening platform that evaluates engineers based strictly on their unique technical footprint.**
 
-![Platform UI Preview](*\Image.png)
+![Platform UI Preview](Image.png)
 
 ## 📖 The Vision
 

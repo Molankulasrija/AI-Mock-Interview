@@ -83,4 +83,4 @@ ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'resumes'
 
 -- Allow the system to read resumes
 CREATE POLICY "Allow authenticated users to read resumes"
-ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'resumes');
+ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'resumes');ECHO is on.
